@@ -9,6 +9,9 @@ import logger from "morgan";
 import apiRouter from "./routes/api/apiRouter";
 import { handle404Error, handleGeneralError } from "./services/errorHandler";
 import createServer from "./services/createServer";
+import { initializeDatabase } from "./services/databaseService";
+
+initializeDatabase();
 
 const app = express();
 

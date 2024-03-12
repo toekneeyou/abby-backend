@@ -10,7 +10,14 @@ export const myDataSource = new DataSource({
   database: "abby-dev",
   entities: [User],
   logging: true,
-  synchronize: false,
+  /**
+   * When synchronize is set to true,
+   * TypeORM will attempt to synchronize
+   * the database schema with your entity definitions
+   * every time the application starts.
+   * Good for DEV, not for PROD
+   */
+  synchronize: true,
 });
 
 export function initializeDatabase() {

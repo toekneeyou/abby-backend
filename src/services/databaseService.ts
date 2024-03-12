@@ -3,11 +3,11 @@ import { User } from "../entity/user.entity";
 
 export const myDataSource = new DataSource({
   type: "postgres",
-  host: "localhost",
+  host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: "abby-dev",
+  database: process.env.DB_NAME,
   entities: [User],
   logging: true,
   /**

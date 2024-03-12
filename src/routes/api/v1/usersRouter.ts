@@ -1,6 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
 import { myDataSource } from "../../../services/databaseService";
 import { User } from "../../../entity/user.entity";
+import {
+  generateSalt,
+  hashPassword,
+} from "../../../services/authenticationService";
 
 const usersRouter = express.Router();
 
@@ -23,9 +27,34 @@ usersRouter.get("/:id", async function (req: Request, res: Response) {
 
 // CREATE a user
 usersRouter.post("/", async function (req: Request, res: Response) {
-  const user = await myDataSource.getRepository(User).create(req.body);
-  const results = await myDataSource.getRepository(User).save(user);
-  return res.json(results);
+  try {
+    const salt = generateSalt();
+    const hashedPassword = await hashPassword(req.body.password, salt);
+
+    let newUser = { ...req.body, password: hashedPassword, salt };
+
+    newUser = myDataSource.getRepository(User).create(newUser);
+    const results = await myDataSource.getRepository(User).save(newUser);
+
+    return res.json(results);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+// DELETE a user
+usersRouter.delete("/:id", async function (req, res) {
+  try {
+    const userRepository = myDataSource.getRepository(User);
+    const user = await userRepository.findOne({
+      where: { id: +req.params.id },
+    });
+    console.log(req.params);
+    await userRepository.remove(user);
+    console.log("DELETED!");
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 export default usersRouter;

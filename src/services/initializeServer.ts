@@ -6,7 +6,7 @@ import http from "http";
 const debugNow = debug("abbybackend:server");
 const port = normalizePort(process.env.PORT || "3001");
 
-export default function createServer(app: Express) {
+export default function initializeServer(app: Express) {
   /**
    * Get port from environment and store in Express.
    */

@@ -8,7 +8,7 @@ import logger from "morgan";
 
 import apiRouter from "./routes/api/apiRouter";
 import { handle404Error, handleGeneralError } from "./services/errorHandler";
-import createServer from "./services/createServer";
+import initializeServer from "./services/initializeServer";
 import { initializeDatabase } from "./services/databaseService";
 
 initializeDatabase();
@@ -28,4 +28,4 @@ app.use("/api", apiRouter);
 app.use(handle404Error);
 app.use(handleGeneralError);
 
-createServer(app);
+initializeServer(app);

@@ -1,14 +1,13 @@
 import express from "express";
-import myPassport from "../../../services/authenticationService";
+import passport from "passport";
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/login",
-  myPassport.authenticate("local", {}),
+  passport.authenticate("local", {}),
   function (req, res) {
-    console.log(req.user);
-    console.log(res);
+    res.json(req.user);
   }
 );
 

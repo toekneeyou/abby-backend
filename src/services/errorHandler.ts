@@ -6,6 +6,7 @@ export function handle404Error(
   res: Response,
   next: NextFunction
 ) {
+  console.log("handle404Error");
   next(createError(404));
 }
 
@@ -15,7 +16,9 @@ export function handleGeneralError(
   res: Response,
   next: NextFunction
 ) {
-  res
-    .status(err.status || 500)
-    .json(req.app.get("env") === "development" ? err : {});
+  console.log("handleGeneralError");
+  const isDev = true;
+
+  res.status(err.status || 500).json(isDev ? err : {});
+  // .json(req.app.get("env") === "development" ? err : {});
 }

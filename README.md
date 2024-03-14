@@ -1,4 +1,5 @@
 # ABBY
+
 This is the backend for ABBY.
 
 ## Table of Contents
@@ -22,7 +23,7 @@ This is the backend for ABBY.
 
    ```
 
-3. Create a `.env` file with these variables
+3. Create a `.env.${environment}` file with these variables
 
    ```
    PORT
@@ -32,6 +33,8 @@ This is the backend for ABBY.
    DB_PORT
    DB_USERNAME
    DB_PASSWORD
+
+   SESSION_SECRET
    ```
 
 ## Usage

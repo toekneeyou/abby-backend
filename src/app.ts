@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
+const environment = process.env.NODE_ENV ?? "development";
 dotenv.config();
-dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
+dotenv.config({ path: `.env.${environment}` });
 
 import express from "express";
 import path from "path";
@@ -28,7 +29,8 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true },
+    // secure: true only works if there is an HTTPS connection
+    cookie: { secure: environment === "production" },
   })
 );
 app.use(passport.authenticate("session"));

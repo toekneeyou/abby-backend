@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { Institution } from "./institution.entity";
+import { Account } from "./account.entity";
+import { Transaction } from "./transaction.entity";
+
+export type UserValues = {
+  [key in keyof User]: User[key];
+};
 
 @Entity()
 export class User {
@@ -22,4 +29,19 @@ export class User {
 
   @Column({ type: "varchar" })
   password: string;
+
+  @OneToMany(() => Institution, (institution) => institution.user, {
+    eager: false,
+  })
+  institutions: Institution[];
+
+  @OneToMany(() => Account, (account) => account.user, {
+    eager: false,
+  })
+  accounts: Account[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.user, {
+    eager: false,
+  })
+  transactions: Transaction[];
 }

@@ -5,6 +5,7 @@ import {
   generateSalt,
   hashPassword,
 } from "../../../services/authenticationService";
+import { Repository } from "typeorm";
 
 const usersRouter = express.Router();
 
@@ -49,12 +50,21 @@ usersRouter.delete("/:id", async function (req, res) {
     const user = await userRepository.findOne({
       where: { id: +req.params.id },
     });
-    console.log(req.params);
-    await userRepository.remove(user);
     console.log("DELETED!");
+    const response = await userRepository.remove(user);
+    return res.json(response);
   } catch (error) {
     console.error(error);
   }
 });
 
 export default usersRouter;
+
+export const getUserRepository: () => Repository<User> = () => {
+  return myDataSource.getRepository(User);
+};
+
+export const getUser: (id: number) => Promise<User> = async (id) => {
+  const userRepository = getUserRepository();
+  return await userRepository.findOneBy({ id });
+};

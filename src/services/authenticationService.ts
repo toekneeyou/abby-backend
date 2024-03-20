@@ -47,7 +47,7 @@ passport.use(
       const hashedPassword = await hashPassword(password, user.salt);
 
       if (user.password === hashedPassword) {
-        console.log("success");
+        console.log("success", user);
         return done(null, user);
       } else {
         console.log("incorrect password");

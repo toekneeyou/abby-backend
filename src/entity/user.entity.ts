@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Institution } from "./institution.entity";
 import { Account } from "./account.entity";
 import { Transaction } from "./transaction.entity";
+import { NetWorth } from "./netWorth";
 
 export type UserValues = {
   [key in keyof User]: User[key];
@@ -44,4 +45,9 @@ export class User {
     eager: false,
   })
   transactions: Transaction[];
+
+  @OneToMany(() => NetWorth, (netWorth) => netWorth.user, {
+    eager: false,
+  })
+  netWorths: NetWorth[];
 }

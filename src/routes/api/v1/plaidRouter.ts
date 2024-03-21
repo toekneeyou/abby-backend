@@ -12,7 +12,6 @@ import { myDataSource } from "../../../services/databaseService";
 import { Institution } from "../../../entity/institution.entity";
 import { Account } from "../../../entity/account.entity";
 import { getUser } from "./usersRouter";
-import { User } from "../../../entity/user.entity";
 import { getUserAccounts } from "./accountsRouter";
 import { getInstitutionByAccessToken } from "./institutionsRouter";
 
@@ -53,20 +52,15 @@ plaidRouter.post("/accessToken", async function (req, res) {
     const itemId = response.data.item_id;
 
     // create new institution
+    const user = await getUser(userId);
     const newInstitution = new Institution();
     newInstitution.plaidAccessToken = accessToken;
     newInstitution.plaidItemId = itemId;
-    await myDataSource.manager.save(newInstitution);
+    newInstitution.user = user;
+    const institution = await myDataSource.manager.save(newInstitution);
 
-    // save institution to user
-    const user = await getUser(userId);
-    user.institutions = Array.isArray(user.institutions)
-      ? [...user.institutions, newInstitution]
-      : [newInstitution];
-    const updatedUser = await myDataSource.manager.save(user);
-
-    // return user as a response
-    return res.status(200).json(updatedUser);
+    // return institution as a response
+    return res.status(200).json(institution);
   } catch (error) {
     console.error("/accessToken", error);
     return res.json(error);

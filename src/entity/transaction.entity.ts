@@ -110,10 +110,10 @@ export class Transaction {
   @Column({ nullable: true })
   merchantStoreNumber: string;
 
-  @Column({ nullable: false, default: false })
+  @Column({ nullable: true, default: false })
   pending: boolean;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: true, unique: true })
   transactionId: string;
 
   @Column({ nullable: true })

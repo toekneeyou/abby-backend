@@ -24,7 +24,7 @@ const transactionsRouter = express.Router();
 
 type CreateTransactionRequest = { userId: User["id"] } & Pick<
   TransactionEntity,
-  "customName" | "amount" | "category" | "date"
+  "customName" | "amount" | "category" | "date" | "name"
 >;
 /**
  * Create a new transaction. This transaction will not belong to any institution or account.
@@ -47,6 +47,7 @@ transactionsRouter.post("/", async function (req, res) {
         case "amount":
         case "category":
         case "date":
+        case "name":
           newTransaction[key] = value;
           break;
         default:

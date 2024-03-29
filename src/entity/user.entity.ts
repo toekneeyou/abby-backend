@@ -2,7 +2,8 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Institution } from "./institution.entity";
 import { Account } from "./account.entity";
 import { Transaction } from "./transaction.entity";
-import { NetWorth } from "./netWorth";
+import { Trend } from "./trends.entity";
+import { Category } from "./category.entity";
 
 export type UserValues = {
   [key in keyof User]: User[key];
@@ -22,32 +23,44 @@ export class User {
   @Column({ nullable: false })
   email: string;
 
-  @Column({ unique: true, length: 30 })
+  @Column({ unique: true, length: 30, nullable: false })
   username: string;
-
-  @Column({ type: "varchar" })
+  /**
+   * Used to hash password. Unique to each user.
+   */
+  @Column({ type: "varchar", nullable: false })
   salt: string;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", nullable: false })
   password: string;
 
   @OneToMany(() => Institution, (institution) => institution.user, {
     eager: false,
+    cascade: true,
   })
   institutions: Institution[];
 
   @OneToMany(() => Account, (account) => account.user, {
     eager: false,
+    cascade: true,
   })
   accounts: Account[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.user, {
     eager: false,
+    cascade: true,
   })
   transactions: Transaction[];
 
-  @OneToMany(() => NetWorth, (netWorth) => netWorth.user, {
+  @OneToMany(() => Trend, (trend) => trend.user, {
     eager: false,
+    cascade: true,
   })
-  netWorths: NetWorth[];
+  trends: Trend[];
+
+  @OneToMany(() => Category, (category) => category.user, {
+    eager: false,
+    cascade: true,
+  })
+  categories: Category[];
 }

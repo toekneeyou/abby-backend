@@ -28,9 +28,14 @@ type FetchAccountsRequest = {
  * These accounts are not up to date with plaid.
  */
 accountsRouter.get("/", async function (req, res) {
-  const { itemId, userId } = req.body as FetchAccountsRequest;
+  const { itemId, userId } = req.params as unknown as FetchAccountsRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+  if (!itemId) return res.status(400).send("Invalid itemId.");
+
   try {
     let accounts: Account[];
+
     if (userId) {
       const user = await getUser(userId);
 
@@ -48,11 +53,14 @@ accountsRouter.get("/", async function (req, res) {
       accounts = await getAccountRepository().find({
         where: { institution },
       });
+    } else {
+      return res.status(400).send("Invalid userId or itemId.");
     }
 
     if (!accounts) return res.status(400).send("Couldn't find accounts.");
 
     accounts = turnAccountDecimalsIntoNumbers(accounts);
+
     return res.json(accounts);
   } catch (error) {
     return res.json(error);
@@ -67,8 +75,12 @@ type FetchBalancesRequest = {
  * Fetches new data from plaid and syncs it with the accounts in the database.
  */
 accountsRouter.get("/balances", async function (req, res) {
+  const { accessToken, userId } = req.params as unknown as FetchBalancesRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+  if (!accessToken) return res.status(400).send("Invalid accessToken.");
+
   try {
-    const { accessToken, userId } = req.body as FetchBalancesRequest;
     // get user and institution to save to accounts
     const user = await getUser(userId);
     const institution = await getInstitutionByAccessToken(accessToken);
@@ -121,6 +133,8 @@ type UpdateAccountRequest = Pick<
 accountsRouter.put("/:id", async function (req, res) {
   const id = Number(req.params.id);
 
+  if (!id) return res.status(400).send("Invalid id.");
+
   try {
     const account = getAccountRepository().findOne({ where: { id } });
 
@@ -138,9 +152,11 @@ accountsRouter.put("/:id", async function (req, res) {
     });
 
     const updatedAccount = await myDataSource.manager.save(account);
+    // turn numbers strings into numbers
     updatedAccount.availableBalance = Number(updatedAccount.availableBalance);
     updatedAccount.currentBalance = Number(updatedAccount.currentBalance);
     updatedAccount.limit = Number(updatedAccount.limit);
+
     return res.json(updatedAccount);
   } catch (error) {
     res.json(error);

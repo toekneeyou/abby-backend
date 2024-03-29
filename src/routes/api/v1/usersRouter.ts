@@ -68,17 +68,18 @@ usersRouter.get("/", async function (req, res, next) {
  * Fetch a single user.
  */
 usersRouter.get("/:id", async function (req: Request, res: Response) {
-  if (isDev) {
-    try {
-      const id = Number(req.params.id);
-      const user = await getUser(id);
+  const id = Number(req.params.id);
 
-      if (!user) return res.status(400).send("Couldn't find user.");
+  if (!id) return res.status(400).send("Invalid id.");
 
-      return res.json(user);
-    } catch (error) {
-      return res.json(error);
-    }
+  try {
+    const user = await getUser(id);
+
+    if (!user) return res.status(400).send("Couldn't find user.");
+
+    return res.json(user);
+  } catch (error) {
+    return res.json(error);
   }
 });
 
@@ -92,8 +93,11 @@ type UpdateUserRequest = Pick<
  * Update a user.
  */
 usersRouter.put("/:id", async function (req, res) {
+  const id = Number(req.params.id);
+
+  if (!id) return res.status(400).send("Invalid id.");
+
   try {
-    const id = Number(req.params.id);
     const user = await getUser(id);
 
     if (!user) return res.status(400).send("Couldn't find user.");
@@ -111,6 +115,7 @@ usersRouter.put("/:id", async function (req, res) {
       }
     });
     const savedUser = await myDataSource.manager.save(user);
+
     return res.json(savedUser);
   } catch (error) {
     return res.json(error);
@@ -123,14 +128,18 @@ usersRouter.put("/:id", async function (req, res) {
  * Delete a user.
  */
 usersRouter.delete("/:id", async function (req, res) {
+  const id = Number(req.params.id);
+
+  if (!id) return res.status(400).send("Invalid id.");
+
   try {
-    const id = Number(req.params.id);
-    const userRepository = myDataSource.getRepository(User);
     const user = await getUser(id);
 
     if (!user) return res.status(400).send("Couldn't find user.");
 
+    const userRepository = myDataSource.getRepository(User);
     const removedUser = await userRepository.remove(user);
+
     return res.json(removedUser);
   } catch (error) {
     console.error(error);
@@ -145,7 +154,9 @@ export const getUserRepository: () => Repository<User> = () => {
 
 export const getUser: (id: number) => Promise<User> = async (id) => {
   const userRepository = getUserRepository();
-  return await userRepository.findOneBy({ id });
+  const user = await userRepository.findOne({ where: { id } });
+  console.log("wtf", id, user);
+  return user;
 };
 
 export default usersRouter;

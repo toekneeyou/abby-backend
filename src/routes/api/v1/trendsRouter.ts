@@ -15,9 +15,11 @@ type SaveTrendRrequest = Omit<Trend, "id" | "user"> & { userId: User["id"] };
  * Create or update a trend.
  */
 trendsRouter.put("/", async function (req, res) {
-  try {
-    const { value, date, type, userId } = req.body as SaveTrendRrequest;
+  const { value, date, type, userId } = req.body as SaveTrendRrequest;
 
+  if (!userId) return res.status(400).send("Invalid userId.");
+
+  try {
     if (!isTrendType(type)) return res.status(400).send("Invalid type.");
 
     const user = await getUser(userId);
@@ -40,6 +42,7 @@ trendsRouter.put("/", async function (req, res) {
 
     const savedTrend = await myDataSource.manager.save(trend);
     savedTrend.value = Number(savedTrend.value);
+
     return res.json(savedTrend);
   } catch (error) {
     return res.json(error);
@@ -52,8 +55,11 @@ type FetchTrendsRequest = {
   userId: User["id"];
 };
 trendsRouter.get("/", async function (req, res) {
+  const { userId } = req.params as unknown as FetchTrendsRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+
   try {
-    const { userId } = req.body as FetchTrendsRequest;
     const user = await getUserRepository().find({ where: { id: userId } });
 
     if (!user) return res.status(400).send("Couldn't find user.");

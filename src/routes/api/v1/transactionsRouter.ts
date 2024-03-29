@@ -30,9 +30,12 @@ type CreateTransactionRequest = { userId: User["id"] } & Pick<
  * Create a new transaction. This transaction will not belong to any institution or account.
  */
 transactionsRouter.post("/", async function (req, res) {
+  const { userId, ...createTransactionRequest } =
+    req.body as CreateTransactionRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+
   try {
-    const { userId, ...createTransactionRequest } =
-      req.body as CreateTransactionRequest;
     const user = await getUser(userId);
 
     if (!user) return res.status(400).send("Couldn't find user.");
@@ -51,6 +54,7 @@ transactionsRouter.post("/", async function (req, res) {
     });
     newTransaction.user = user;
     const savedTransaction = await myDataSource.manager.save(newTransaction);
+
     return res.json(savedTransaction);
   } catch (error) {
     return res.json(error);
@@ -64,8 +68,11 @@ type FetchTransactionsRequest = { userId: User["id"] };
  * Fetch transactions belonging to a user from the database.
  */
 transactionsRouter.get("/", async function (req, res) {
+  const { userId } = req.params as unknown as FetchTransactionsRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+
   try {
-    const { userId } = req.body as FetchTransactionsRequest;
     const user = await getUser(userId);
 
     if (!user) return res.status(400).send("Couldn't find user");
@@ -81,6 +88,7 @@ transactionsRouter.get("/", async function (req, res) {
       turnTransactionDecimalsIntoNumbers(t);
       return t;
     });
+
     return res.json(transactionsResponse);
   } catch (error) {
     return res.json(error);
@@ -92,8 +100,13 @@ type FetchTransactionsFromPlaidRequest = {
   userId: User["id"];
 };
 transactionsRouter.get("/sync", async function (req, res) {
+  const { itemId, userId } =
+    req.params as unknown as FetchTransactionsFromPlaidRequest;
+
+  if (!userId) return res.status(400).send("Invalid userId.");
+  if (!itemId) return res.status(400).send("Invalid itemId.");
+
   try {
-    const { itemId, userId } = req.body as FetchTransactionsFromPlaidRequest;
     const user = await getUser(userId);
     const institution = await getInstitutionByItemId(itemId);
     const transactionRepository = myDataSource.getRepository(TransactionEntity);
@@ -177,9 +190,12 @@ type UpdateTransactionRequest = Pick<
  * Update a transaction.
  */
 transactionsRouter.put("/:id", async function (req, res) {
+  const id = Number(req.params.id) as TransactionEntity["id"];
+  const updateTransactionsRequest = req.body as UpdateTransactionRequest;
+
+  if (!id) return res.status(400).send("Invalid id.");
+
   try {
-    const id = Number(req.params.id) as TransactionEntity["id"];
-    const updateTransactionsRequest = req.body as UpdateTransactionRequest;
     const transaction = await getTransactionRepository().findOne({
       where: { id },
     });
@@ -197,6 +213,7 @@ transactionsRouter.put("/:id", async function (req, res) {
     });
     const savedTransaction = await myDataSource.manager.save(transaction);
     turnTransactionDecimalsIntoNumbers(savedTransaction);
+
     return res.json(savedTransaction);
   } catch (error) {
     return res.json(error);
@@ -209,8 +226,11 @@ transactionsRouter.put("/:id", async function (req, res) {
  * Delete a transaction.
  */
 transactionsRouter.delete("/:id", async function (req, res) {
+  const id = Number(req.params.id) as TransactionEntity["id"];
+
+  if (!id) return res.status(400).send("Invalid id.");
+
   try {
-    const id = Number(req.params.id) as TransactionEntity["id"];
     const transaction = await getTransactionRepository().findOne({
       where: { id },
     });

@@ -68,7 +68,7 @@ type FetchTransactionsRequest = { userId: User["id"] };
  * Fetch transactions belonging to a user from the database.
  */
 transactionsRouter.get("/", async function (req, res) {
-  const { userId } = req.params as unknown as FetchTransactionsRequest;
+  const { userId } = req.query as unknown as FetchTransactionsRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
 
@@ -101,7 +101,7 @@ type FetchTransactionsFromPlaidRequest = {
 };
 transactionsRouter.get("/sync", async function (req, res) {
   const { itemId, userId } =
-    req.params as unknown as FetchTransactionsFromPlaidRequest;
+    req.query as unknown as FetchTransactionsFromPlaidRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
   if (!itemId) return res.status(400).send("Invalid itemId.");

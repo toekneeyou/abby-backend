@@ -55,7 +55,7 @@ type FetchTrendsRequest = {
   userId: User["id"];
 };
 trendsRouter.get("/", async function (req, res) {
-  const { userId } = req.params as unknown as FetchTrendsRequest;
+  const { userId } = req.query as unknown as FetchTrendsRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
 
@@ -65,6 +65,7 @@ trendsRouter.get("/", async function (req, res) {
     if (!user) return res.status(400).send("Couldn't find user.");
 
     const trends = await getTrendRepository().find({ where: { user } });
+    console.log(trends);
 
     return res.json(
       trends.map((t) => {

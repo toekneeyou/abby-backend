@@ -46,7 +46,7 @@ type FetchCategoriesRequest = {
  * Fetch all categories belonging to a user.
  */
 categoriesRouter.get("/", async function (req, res) {
-  const { userId } = req.params as unknown as FetchCategoriesRequest;
+  const { userId } = req.query as unknown as FetchCategoriesRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
 

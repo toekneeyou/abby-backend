@@ -28,7 +28,7 @@ type FetchAccountsRequest = {
  * These accounts are not up to date with plaid.
  */
 accountsRouter.get("/", async function (req, res) {
-  const { itemId, userId } = req.params as unknown as FetchAccountsRequest;
+  const { itemId, userId } = req.query as unknown as FetchAccountsRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
   if (!itemId) return res.status(400).send("Invalid itemId.");
@@ -75,7 +75,7 @@ type FetchBalancesRequest = {
  * Fetches new data from plaid and syncs it with the accounts in the database.
  */
 accountsRouter.get("/balances", async function (req, res) {
-  const { accessToken, userId } = req.params as unknown as FetchBalancesRequest;
+  const { accessToken, userId } = req.query as unknown as FetchBalancesRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
   if (!accessToken) return res.status(400).send("Invalid accessToken.");

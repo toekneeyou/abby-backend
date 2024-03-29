@@ -179,7 +179,9 @@ export const getAccountRepository: () => Repository<Account> = () => {
 export const getUserAccounts: (user: User) => Promise<Account[]> = async (
   user
 ) => {
-  return await getAccountRepository().find({ where: { user } });
+  return await getAccountRepository().find({
+    where: { user },
+  });
 };
 /**
  * Turn decimals into numbers.

@@ -14,16 +14,16 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   firstName: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   lastName: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   email: string;
 
-  @Column({ unique: true, length: 30, nullable: false })
+  @Column({ unique: true, length: 30, nullable: true })
   username: string;
   /**
    * Used to hash password. Unique to each user.

@@ -16,6 +16,9 @@ export class Category {
   @Column({ nullable: false })
   name: string;
 
+  @Column({ nullable: true })
+  icon: string;
+
   @OneToMany(() => Transaction, (transaction) => transaction.category)
   transactions: Transaction[];
 

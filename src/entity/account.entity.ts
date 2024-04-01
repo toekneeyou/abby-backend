@@ -45,6 +45,7 @@ export class Account {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
     nullable: false,
+    eager: false,
   })
   user: User;
 

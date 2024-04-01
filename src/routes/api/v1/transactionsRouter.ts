@@ -58,7 +58,7 @@ transactionsRouter.post("/", async function (req, res) {
 
     return res.json(savedTransaction);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -92,7 +92,7 @@ transactionsRouter.get("/", async function (req, res) {
 
     return res.json(transactionsResponse);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -177,7 +177,7 @@ transactionsRouter.get("/sync", async function (req, res) {
     }
   } catch (error) {
     console.error("/syncTransactions", error);
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -203,21 +203,38 @@ transactionsRouter.put("/:id", async function (req, res) {
 
     if (!transaction) return res.status(400).send("Couldn't find transaction");
 
+    let isUpdateCategory = false;
     Object.entries(updateTransactionsRequest).forEach(([key, value]) => {
       switch (key as keyof UpdateTransactionRequest) {
         case "customName":
-        case "category":
           transaction[key] = value;
+          break;
+        case "category":
+          isUpdateCategory = true;
           break;
         default:
       }
     });
+
+    if (isUpdateCategory) {
+      const id = updateTransactionsRequest.category.id;
+
+      if (!id) return res.status(400).send("Invalid category id.");
+
+      const category = await getCategoryRepository().findOne({
+        where: { id },
+      });
+      if (!category) return res.status(400).send("Couldn't find category.");
+
+      transaction.category = category;
+    }
+
     const savedTransaction = await myDataSource.manager.save(transaction);
     turnTransactionDecimalsIntoNumbers(savedTransaction);
 
     return res.json(savedTransaction);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -241,7 +258,7 @@ transactionsRouter.delete("/:id", async function (req, res) {
     const deletedTransaction = await myDataSource.manager.remove(transaction);
     return res.json(deletedTransaction);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 

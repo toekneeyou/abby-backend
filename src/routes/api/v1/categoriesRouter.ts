@@ -11,12 +11,13 @@ const categoriesRouter = express.Router();
 type CreateCategoryRequest = {
   userId: User["id"];
   name: string;
+  icon: string;
 };
 /**
  * Create and save a new category.
  */
 categoriesRouter.post("/", async function (req, res) {
-  const { userId, name } = req.body as CreateCategoryRequest;
+  const { userId, name, icon } = req.body as CreateCategoryRequest;
 
   if (!userId) return res.status(400).send("Invalid userId.");
   if (!name) return res.status(400).send("Invalid name.");
@@ -29,11 +30,12 @@ categoriesRouter.post("/", async function (req, res) {
     const newCategory = new Category();
     newCategory.name = name.toLowerCase();
     newCategory.user = user;
+    if (icon) newCategory.icon = icon;
     myDataSource.manager.save(newCategory);
 
     return res.json(newCategory);
   } catch (error) {
-    res.json(error);
+    res.status(500).send(error);
   }
 });
 
@@ -61,13 +63,13 @@ categoriesRouter.get("/", async function (req, res) {
 
     return res.json(categories);
   } catch (error) {
-    res.json(error);
+    res.status(500).send(error);
   }
 });
 
 // UPDATE ==========================================================================
 
-type UpdateCategoryRequest = Pick<Category, "name">;
+type UpdateCategoryRequest = Pick<Category, "name" | "icon">;
 /**
  * Update a single category.
  */
@@ -83,15 +85,19 @@ categoriesRouter.put("/:id", async function (req, res) {
 
     Object.entries(req.body).forEach(([key, value]) => {
       switch (key as keyof UpdateCategoryRequest) {
+        case "icon":
         case "name":
           category[key] = value;
+          break;
+        default:
       }
     });
+
     const savedCategory = await myDataSource.manager.save(category);
 
     return res.json(savedCategory);
   } catch (error) {
-    res.json(error);
+    res.status(500).send(error);
   }
 });
 
@@ -114,7 +120,7 @@ categoriesRouter.delete("/:id", async function (req, res) {
 
     return res.json(removedCategory);
   } catch (error) {
-    res.json(error);
+    res.status(500).send(error);
   }
 });
 

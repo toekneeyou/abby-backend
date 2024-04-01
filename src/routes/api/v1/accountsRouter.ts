@@ -39,7 +39,7 @@ accountsRouter.get("/", async function (req, res) {
     if (userId) {
       const user = await getUser(userId);
 
-      if (!user) return res.status(400).send("Couldn't find user");
+      if (!user) return res.status(404).send("Couldn't find user");
 
       accounts = await getUserAccounts(user);
     } else if (itemId) {
@@ -48,22 +48,22 @@ accountsRouter.get("/", async function (req, res) {
       });
 
       if (!institution)
-        return res.status(400).send("Couldn't find institution.");
+        return res.status(404).send("Couldn't find institution.");
 
       accounts = await getAccountRepository().find({
         where: { institution },
       });
     } else {
-      return res.status(400).send("Invalid userId or itemId.");
+      return res.status(404).send("Invalid userId or itemId.");
     }
 
-    if (!accounts) return res.status(400).send("Couldn't find accounts.");
+    if (!accounts) return res.status(404).send("Couldn't find accounts.");
 
     accounts = turnAccountDecimalsIntoNumbers(accounts);
 
     return res.json(accounts);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -108,16 +108,20 @@ accountsRouter.get("/balances", async function (req, res) {
       // save accounts
       let savedAccounts = await Promise.all(accountPromises);
       savedAccounts = turnAccountDecimalsIntoNumbers(savedAccounts);
+      // remove user from response
+      savedAccounts.forEach((a) => {
+        delete a.user;
+      });
 
       return res.json(savedAccounts);
     } else {
       return res
-        .status(400)
+        .status(404)
         .send("Couldn't find user, institution, or accounts.");
     }
   } catch (error) {
     console.error("/balance", error);
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -138,7 +142,7 @@ accountsRouter.put("/:id", async function (req, res) {
   try {
     const account = getAccountRepository().findOne({ where: { id } });
 
-    if (!account) return res.status(400).send("Couldn't find account.");
+    if (!account) return res.status(404).send("Couldn't find account.");
 
     Object.entries(req.body).forEach(([key, value]) => {
       switch (key as keyof UpdateAccountRequest) {
@@ -159,7 +163,7 @@ accountsRouter.put("/:id", async function (req, res) {
 
     return res.json(updatedAccount);
   } catch (error) {
-    res.json(error);
+    res.status(500).send(error);
   }
 });
 

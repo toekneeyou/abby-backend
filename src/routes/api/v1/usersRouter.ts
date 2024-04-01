@@ -6,6 +6,7 @@ import {
   hashPassword,
 } from "../../../services/authenticationService";
 import { Repository } from "typeorm";
+import { check, validationResult } from "express-validator";
 
 const isDev = process.env.NODE_ENV === "development";
 const usersRouter = express.Router();
@@ -19,33 +20,52 @@ type CreateUserRequest = Pick<
 /**
  * Create a user.
  */
-usersRouter.post("/", async function (req: Request, res: Response) {
-  try {
-    // generate salt and hashed password
-    const salt = generateSalt();
-    const hashedPassword = await hashPassword(req.body.password, salt);
-    const user = new User();
-    // add data to user
-    Object.entries(req.body).forEach(([key, value]) => {
-      switch (key as keyof CreateUserRequest) {
-        case "firstName":
-        case "lastName":
-        case "email":
-        case "username":
-          user[key] = value;
-          break;
-        default:
+usersRouter.post(
+  "/",
+  [
+    check("email").isEmail().notEmpty(),
+    check("password").isStrongPassword({
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+    }),
+  ],
+  async function (req: Request, res: Response) {
+    try {
+      // Check for validation errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        // If there are validation errors, return a 400 response with the error details
+        return res.status(400).json({ errors: errors.array() });
       }
-    });
-    user.password = hashedPassword as string;
-    user.salt = salt;
-    // save user
-    const newUser = await myDataSource.getRepository(User).save(user);
-    return res.json(newUser);
-  } catch (error) {
-    return res.json(error);
+      // generate salt
+      const salt = await generateSalt();
+      // hash password
+      const hashedPassword = await hashPassword(req.body.password, salt);
+      const user = new User();
+      // add data to user
+      Object.entries(req.body).forEach(([key, value]) => {
+        switch (key as keyof CreateUserRequest) {
+          case "firstName":
+          case "lastName":
+          case "email":
+          case "username":
+            user[key] = value;
+            break;
+          default:
+        }
+      });
+      user.salt = salt;
+      user.password = hashedPassword as string;
+      // save user
+      const newUser = await myDataSource.getRepository(User).save(user);
+      return res.json(newUser);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
   }
-});
+);
 
 // READ ============================================================================
 
@@ -79,7 +99,7 @@ usersRouter.get("/:id", async function (req: Request, res: Response) {
 
     return res.json(user);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -118,7 +138,7 @@ usersRouter.put("/:id", async function (req, res) {
 
     return res.json(savedUser);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 

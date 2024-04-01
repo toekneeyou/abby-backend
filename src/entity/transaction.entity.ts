@@ -60,6 +60,7 @@ export class Transaction {
 
   @ManyToOne(() => Category, (category) => category.transactions, {
     nullable: true,
+    eager: true,
   })
   category: Category;
 

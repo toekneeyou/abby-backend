@@ -59,7 +59,7 @@ institutionsRouter.post("/", async function (req, res) {
     // return savedInstitution as a response
     return res.json(savedInstitution);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -87,7 +87,7 @@ institutionsRouter.get("/", async function (req, res) {
 
     return res.json(institutions);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -119,7 +119,7 @@ institutionsRouter.put("/:id", async function (req, res) {
 
     return res.json(savedInstitution);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -142,7 +142,7 @@ institutionsRouter.delete("/:id", async function (req, res) {
 
     return res.json(removedInstitution);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 

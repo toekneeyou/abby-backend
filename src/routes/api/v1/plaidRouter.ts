@@ -26,7 +26,7 @@ plaidRouter.post("/linkToken", async function (req, res) {
     return res.status(200).json(response.data);
   } catch (error) {
     console.error("/linkToken", error);
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 

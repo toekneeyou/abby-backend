@@ -45,7 +45,7 @@ trendsRouter.put("/", async function (req, res) {
 
     return res.json(savedTrend);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
@@ -74,7 +74,7 @@ trendsRouter.get("/", async function (req, res) {
       })
     );
   } catch (error) {
-    return res.json(error);
+    return res.status(500).send(error);
   }
 });
 
